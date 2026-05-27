@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sài Gòn Lesson Quest</title>
+    <title>Sài Gòn Chronicles: Complete Quest</title>
     <style>
         body {
             margin: 0;
@@ -14,7 +14,6 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden;
         }
         #game-container {
             flex: 1;
@@ -24,71 +23,44 @@
             box-sizing: border-box;
             justify-content: space-between;
         }
-        #header-zone {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        #stage-header {
             background-color: #1e1e1e;
-            padding: 12px 15px;
+            padding: 12px;
             border-radius: 8px;
             border: 1px solid #333;
-        }
-        #mode-badge {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            padding: 4px 8px;
-            border-radius: 4px;
+            text-align: center;
             font-weight: bold;
-            letter-spacing: 0.5px;
+            color: #ffb300;
         }
-        .badge-vocab { background-color: #d63031; color: white; }
-        .badge-reading { background-color: #0984e3; color: white; }
-        .badge-listening { background-color: #6c5ce7; color: white; }
-        .badge-speaking { background-color: #00b894; color: white; }
-
-        #screen {
+        #viewport {
             flex: 1;
             background-color: #1a1a1a;
-            border: 3px solid #333;
+            border: 2px solid #333;
             border-radius: 12px;
             padding: 20px;
             margin: 15px 0;
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
-            align-items: center;
-            text-align: center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+            overflow-y: auto;
         }
-        .hp-bar {
-            width: 100%;
-            background-color: #333;
-            height: 12px;
-            border-radius: 6px;
-            overflow: hidden;
-            margin: 4px 0;
-            border: 1px solid #444;
-        }
-        .hp-fill {
-            height: 100%;
-            background-color: #ff4757;
-            width: 100%;
-            transition: width 0.3s ease;
-        }
-        #enemy-hp { background-color: #2ed573; }
-        #prompt-context {
-            color: #aaa;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        #dialogue {
-            font-size: 1.2rem;
-            line-height: 1.5;
-            margin: 15px 0;
+        .story-text {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
             color: #fff;
         }
-        #controls {
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .badge-training { background-color: #0984e3; color: white; }
+        .badge-world { background-color: #00b894; color: white; }
+        #choice-panel {
             display: grid;
             grid-template-columns: 1fr;
             gap: 10px;
@@ -97,222 +69,292 @@
             background-color: #252525;
             color: #fff;
             border: 1px solid #444;
-            padding: 14px;
-            font-size: 0.95rem;
+            padding: 15px;
+            font-size: 1rem;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.1s ease;
-            -webkit-tap-highlight-color: transparent;
             text-align: left;
+            transition: background 0.1s;
+            -webkit-tap-highlight-color: transparent;
         }
         button:active {
             background-color: #333;
-            transform: scale(0.99);
-        }
-        .audio-btn {
-            background-color: #6c5ce7;
-            border-color: #5b4bc4;
-            padding: 10px 20px;
-            margin-top: 10px;
-            text-align: center;
-            display: inline-block;
-            font-weight: bold;
-            border-radius: 20px;
         }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div id="header-zone">
-        <span id="mode-badge" class="badge-vocab">Vocab</span>
-        <span id="score-tracking">Quest: <span id="progress-count">1</span>/4</span>
-    </div>
-
-    <div id="screen">
-        <div style="width: 100%;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                <span id="enemy-name">Bài Học Monster</span>
-                <span id="enemy-hp-text">HP: 100/100</span>
-            </div>
-            <div class="hp-bar"><div id="enemy-hp" class="hp-fill"></div></div>
-        </div>
-
-        <div>
-            <div id="prompt-context">Initializing...</div>
-            <div id="dialogue">Loading syllabus array...</div>
-            <button id="listen-btn" class="audio-btn" style="display:none;">🔊 Nghe (Southern Voice)</button>
-        </div>
-
-        <div style="width: 100%;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                <span>Your Focus (HP)</span>
-                <span id="player-hp-text">HP: 100/100</span>
-            </div>
-            <div class="hp-bar"><div id="player-hp" class="hp-fill"></div></div>
-        </div>
-    </div>
-
-    <div id="controls">
-        <!-- Choices injected dynamically -->
-    </div>
+    <div id="stage-header">INITIALIZING...</div>
+    <div id="viewport"></div>
+    <div id="choice-panel"></div>
 </div>
 
 <script>
-    // Pure data balanced to hit exactly 25% distribution across all four key skills using your chat data points
-    const balancedSyllabus = [
+    // ----------------------------------------------------
+    // MASTER SYLLABUS DATABASE (Add your new words here!)
+    // ----------------------------------------------------
+    const gameLevels = [
         {
-            type: "vocab",
-            badgeText: "Single Vocab",
-            badgeClass: "badge-vocab",
-            enemy: "Vocabulary Warden",
-            prompt: "Your teacher Vinh Tran points out that your food tastes exceptionally fatty and rich. What Southern culinary term describes this deep, creamy characteristic?",
-            options: [
-                "Nước tương (Soy sauce)",
-                "Béo (Creamy / Fatty flavor profile)",
-                "Đồ chua (Pickled vegetables)",
-                "Mặn (Salty food seasoning)"
-            ],
-            correct: 1
+            levelNum: 1,
+            title: "LEVEL 1: QUÁN ĂN & SỨC KHỎE (EATERY & HEALTH)",
+            vocabWord: "Tóp mỡ",
+            vocabPrompt: "What does the local culinary term <strong>'Tóp mỡ'</strong> mean?",
+            vocabOptions: ["Soy sauce base", "Crispy pork cracklings / rich topping", "Pickled vegetables"],
+            vocabCorrect: 1,
+            fillPrompt: "Complete the food poisoning context sentence:<br><br>'Coi chừng anh bị __________ do ăn đồ ăn đông lạnh không sạch đó.'",
+            fillOptions: ["tiểu đường (diabetes)", "ngộ độc thực phẩm (food poisoning)", "nha sĩ (dentist)"],
+            fillCorrect: 1,
+            story: {
+                start: {
+                    text: "You step into a lively late-night quán nhậu. The server walks over. You want to request rich toppings and sauce for your dish using clean Southern phrasing.",
+                    choices: [
+                        { text: "Order: 'Cho con xin thêm tóp mỡ với nước tương nghen.'", target: "food_arrives" },
+                        { text: "Order: 'Lấy cho con một dĩa mặn và sapovirus.'", target: "order_mishap" }
+                    ]
+                },
+                order_mishap: {
+                    text: "The server looks entirely horrified. Asking for a virus makes no sense! Let's re-phrase your statement.",
+                    choices: [{ text: "Try ordering again", target: "start" }]
+                },
+                food_arrives: {
+                    text: "The dish arrives hot, crispy, and beautifully béo (creamy/rich). Later that evening, your stomach begins to ache fiercely. You travel to a local clinic, and the doctor steps in to check your symptoms.",
+                    choices: [
+                        { text: "Explain: 'Chắc em bị ngộ độc thực phẩm rồi bác sĩ, thấy tệ quá.'", target: "level_complete" },
+                        { text: "Explain: 'Em muốn bơm bánh xe dùm con.'", target: "doctor_confused" }
+                    ]
+                },
+                doctor_confused: {
+                    text: "The doctor looks completely blankly at you. Pumping tires makes absolutely zero sense at a medical clinic!",
+                    choices: [{ text: "Focus and re-state your medical condition", target: "food_arrives" }]
+                },
+                level_complete: {
+                    text: "The doctor nods, checks your condition, and writes a proper prescription (đơn thuốc). You survived the eatery hurdle! Ready for the daily grind?",
+                    choices: [{ text: "Advance to Level 2", target: "next_level_trigger" }]
+                }
+            }
         },
         {
-            type: "reading",
-            badgeText: "Short Reading",
-            badgeClass: "badge-reading",
-            enemy: "Context Guardian",
-            prompt: "Read this local Southern observation snippet:\n'Bên ngoài trời đang giông bão lớn, sấm sét rất nguy hiểm. Anh ở nhà thôi nghen, đừng đi ra ngoài đường kẻo bị té hoặc cảm bệnh.'\nWhat is the absolute main advice given in this text?",
-            options: [
-                "You should go to the local market before it gets completely dark.",
-                "It is storming dangerously outside, so you must stay home to remain safe.",
-                "You need to quickly rent a motorbike to drive through District 1."
-            ],
-            correct: 1
+            levelNum: 2,
+            title: "LEVEL 2: THỜI GIAN & ĐỜI SỐNG (ROUTINES & SEASONS)",
+            vocabWord: "Thức khuya",
+            vocabPrompt: "What does the lifestyle verb <strong>'Thức khuya'</strong> mean?",
+            vocabOptions: ["To wake up early", "To take a stroll", "To stay up late into the night"],
+            vocabCorrect: 2,
+            fillPrompt: "Complete the weather clothing check sentence:<br><br>'Trời hôm nay giông bão lớn và lạnh quá, anh nên mặc __________ khi đi ra ngoài.'",
+            fillOptions: ["áo khoác (jacket)", "dép (sandals)", "áo thun (t-shirt)"],
+            fillCorrect: 0,
+            story: {
+                start: {
+                    text: "It is a wild morning in HCMC—the sunny and rainy seasons are colliding, and a massive storm (bão) is building up outside. Your colleague text messages you to see if you are coming to class on time.",
+                    choices: [
+                        { text: "Text back: 'Hôm nay trời bão lớn quá, em sợ đi trễ nha.'", target: "grind_starts" },
+                        { text: "Text back: 'Em vừa mới đi thay nhớt dưa leo cả ngày.'", target: "text_mishap" }
+                    ]
+                },
+                text_mishap: {
+                    text: "Your colleague drops a string of confused emojis. Changing oil with a cucumber makes no sense! Try typing a real status update.",
+                    choices: [{ text: "Re-send text message", target: "start" }]
+                },
+                grind_starts: {
+                    text: "You safely reach the building center. After a long day of teaching, your friend asks if you want to hang out late at a local lounge space.",
+                    choices: [
+                        { text: "Decline: 'Thôi, thỉnh thoảng em mới đi đêm, hôm nay không muốn thức khuya.'", target: "level_complete" },
+                        { text: "Decline: 'Em bị dị ứng với chị dâu rất tươi.'", target: "friend_confused" }
+                    ]
+                },
+                friend_confused: {
+                    text: "Your friend stares blankly at you. That combination of traits makes completely zero sense! Try declining normally.",
+                    choices: [{ text: "Re-phrase your refusal statement", target: "grind_starts" }]
+                },
+                level_complete: {
+                    text: "Your friend understands completely. You head back home to rest up, successfully dodging both a bad cold and an awkward conversation. Level 2 Cleared!",
+                    choices: [{ text: "Advance to Level 3", target: "next_level_trigger" }]
+                }
+            }
         },
         {
-            type: "listening",
-            badgeText: "Listening Activity",
-            badgeClass: "badge-listening",
-            enemy: "Aural Specter",
-            prompt: "Press the audio button to listen carefully to the speaker's medical explanation, then identify the diagnosis mentioned:",
-            audioText: "Coi chừng anh bị ngộ độc thực phẩm do sapovirus đó nha.",
-            options: [
-                "They suspect you are suffering from a chronic case of diabetes (tiểu đường).",
-                "They believe you are experiencing acute food poisoning (ngộ độc thực phẩm) from sapovirus.",
-                "They are advising you to take care of your teeth (răng) at the dentist."
-            ],
-            correct: 1
+            levelNum: 3,
+            title: "LEVEL 3: ĐƯỜNG PHỐ & GIAO THÔNG (STREETS & ERRANDS)",
+            vocabWord: "Kẹt xe",
+            vocabPrompt: "What does the common urban street condition <strong>'Kẹt xe'</strong> mean?",
+            vocabOptions: ["Free parking spot", "Traffic jam / Gridlock", "Gas station breakdown"],
+            vocabCorrect: 1,
+            fillPrompt: "Complete the street direction execution sentence:<br><br>'Tới ngã tư chạy thẳng tiếp rồi nhớ __________ liền nghen con.'",
+            fillOptions: ["giảm giá (discount)", "quẹo phải (turn right)", "thuê (rent)"],
+            fillCorrect: 1,
+            story: {
+                start: {
+                    text: "You are on your motorbike traveling down a winding alley lane. Suddenly, the traffic gridlocks completely. It's an intense, sweltering Saigon traffic jam.",
+                    choices: [
+                        { text: "Think: 'Đường này kẹt xe dữ quá, phải quẹo phải tìm đường khác thôi.'", target: "shop_errand" },
+                        { text: "Think: 'Mình cần phải kết hôn với cái bánh xe này.'", target: "street_mishap" }
+                    ]
+                },
+                street_mishap: {
+                    text: "Marrying your tire makes absolutely zero sense in a gridlock traffic jam! Focus on navigating around the cars.",
+                    choices: [{ text: "Re-evaluate your path options", target: "start" }]
+                },
+                shop_errand: {
+                    text: "You bypass the jam and pull up right outside a local shop (tiệm) to buy an electronics item. You look closely at the pricing tag and want to politely ask for a deal or discount value.",
+                    choices: [
+                        { text: "Ask: 'Cái này có được giảm giá không chủ nhà ơi?'", target: "level_complete" },
+                        { text: "Ask: 'Cho con một ly nước tương không đường miễn phí.'", target: "shop_confused" }
+                    ]
+                },
+                shop_confused: {
+                    text: "The store owner gives you a bizarre look. Soy sauce with zero sugar makes no sense at an electronics storefront!",
+                    choices: [{ text: "Re-state your pricing inquiry cleanly", target: "shop_errand" }]
+                },
+                level_complete: {
+                    text: "The shop owner laughs, gives you a solid discount (giảm giá), and bids you a warm farewell. You successfully completed your street errand run! Ready for the social arena?",
+                    choices: [{ text: "Advance to Level 4", target: "next_level_trigger" }]
+                }
+            }
         },
         {
-            type: "speaking",
-            badgeText: "Speaking Phrasing",
-            badgeClass: "badge-speaking",
-            enemy: "Pronoun Master",
-            prompt: "You want to naturally say goodbye to your wife using informal Southern affectionate speech before heading out to work. Choose the proper phrasing:",
-            options: [
-                "Anh đi dạy nha chú rể.",
-                "Anh đi dạy nha bà xã.",
-                "Con xin phép đi về nghen ông xã."
-            ],
-            correct: 1,
-            audioText: "Anh đi dạy nha bà xã."
+            levelNum: 4,
+            title: "LEVEL 4: MỐI QUAN HỆ & XÃ HỘI (CONNECTIONS)",
+            vocabWord: "Bà xã",
+            vocabPrompt: "What does the warm, relational vocabulary word <strong>'Bà xã'</strong> mean?",
+            vocabOptions: ["Wife (affectionate)", "Boss / Store Manager", "University Student"],
+            vocabCorrect: 0,
+            fillPrompt: "Complete the formal celebration tracking sentence:<br><br>'Hôm nay em rất vui vì được đi dự tiệc __________ của đồng nghiệp công ty.'",
+            fillOptions: ["bão (storm)", "đám cưới (wedding)", "quần tây (trousers)"],
+            fillCorrect: 1,
+            story: {
+                start: {
+                    text: "You are dressed in a sharp button-down shirt (áo sơ mi), attending a formal wedding celebration party. A friendly co-worker (đồng nghiệp) walks up to introduce you to their department boss.",
+                    choices: [
+                        { text: "Greet: 'Chào sếp ạ, rất vui vì được gặp sếp ở buổi tiệc này.'", target: "social_success" },
+                        { text: "Greet: 'Chào bạn, mình muốn đi vệ sinh có tóp mỡ béo.'", target: "social_mishap" }
+                    ]
+                },
+                social_mishap: {
+                    text: "The boss looks incredibly stunned and walks away. Bringing up greasy pork cracklings during a professional introduction completely breaks social decorum!",
+                    choices: [{ text: "Try re-introducing yourself politely", target: "start" }]
+                },
+                social_success: {
+                    text: "The conversation flows beautifully! The boss commends your diligence. You finish your drinks and head back home, eager to share the fun highlights of the party with your wife.",
+                    choices: [
+                        { text: "Say at home: 'Hôm nay đi tiệc đám cưới vui lắm bà xã ơi!'", target: "game_victory" },
+                        { text: "Say at home: 'Hôm nay em thấy kẹt xe ngộ độc thực phẩm nhé chú rể.'", target: "wife_confused" }
+                    ]
+                },
+                wife_confused: {
+                    text: "Your wife stares blankly at you. Calling her a groom while rambling about food poisoning makes no sense! Try speaking naturally.",
+                    choices: [{ text: "Re-phrase your conversation with her", target: "social_success" }]
+                },
+                game_victory: {
+                    text: "🎉 CAMPAIGN COMPLETION SUCCESS! You successfully navigated all 4 core language chapters, bridging vocabulary definition steps, completion layers, and situational environments. Outstanding learning run!",
+                    choices: [{ text: "Restart Master Campaign Loop", target: "campaign_restart" }]
+                }
+            }
         }
     ];
 
-    let currentIdx = 0;
-    let playerHP = 100;
-    let enemyHP = 100;
+    // ----------------------------------------------------
+    // GAME STATE CONTROLLER MECHANICS
+    // ----------------------------------------------------
+    let currentLevelIndex = 0;
+    let currentPhase = "training_match"; // training_match -> training_fill -> world_story
+    let currentStoryNode = "start";
 
-    function renderActiveRound() {
-        if (currentIdx >= balancedSyllabus.length) {
-            document.getElementById('dialogue').innerHTML = "🎯 Perfect Score! Your lesson review is complete. You successfully handled vocab, reading chunks, listening, and speaking modules equally!";
-            document.getElementById('controls').innerHTML = `<button style="text-align:center;" onclick="restartSyllabus()">Restart Review Iteration</button>`;
-            return;
-        }
+    const view = document.getElementById('viewport');
+    const panel = document.getElementById('choice-panel');
+    const header = document.getElementById('stage-header');
 
-        const turnData = balancedSyllabus[currentIdx];
+    function gameTick() {
+        view.innerHTML = '';
+        panel.innerHTML = '';
         
-        // Update skill framework UI tracking markers
-        const badge = document.getElementById('mode-badge');
-        badge.innerText = turnData.badgeText;
-        badge.className = ''; 
-        badge.classList.add(turnData.badgeClass);
+        let lvl = gameLevels[currentLevelIndex];
+        header.innerText = lvl.title;
 
-        document.getElementById('enemy-name').innerText = turnData.enemy;
-        document.getElementById('progress-count').innerText = currentIdx + 1;
-        document.getElementById('prompt-context').innerText = `Module Structure: ${turnData.type.toUpperCase()}`;
-        document.getElementById('dialogue').innerText = turnData.prompt;
-
-        const listenBtn = document.getElementById('listen-btn');
-        const controls = document.getElementById('controls');
-        controls.innerHTML = '';
-
-        if (turnData.type === "listening") {
-            listenBtn.style.display = 'block';
-            listenBtn.onclick = () => playVinhAudio(turnData.audioText);
-        } else {
-            listenBtn.style.display = 'none';
+        if (currentPhase === "training_match") {
+            renderMatchScreen(lvl);
+        } else if (currentPhase === "training_fill") {
+            renderFillScreen(lvl);
+        } else if (currentPhase === "world_story") {
+            renderStoryScreen(lvl);
         }
+    }
 
-        turnData.options.forEach((opt, index) => {
-            const btn = document.createElement('button');
+    function renderMatchScreen(lvl) {
+        let txt = document.createElement('div');
+        txt.className = "story-text";
+        txt.innerHTML = `<span class="badge badge-training">Phase 1: Definition Match</span><br><br>${lvl.vocabPrompt}`;
+        view.appendChild(txt);
+
+        lvl.vocabOptions.forEach((opt, idx) => {
+            let btn = document.createElement('button');
             btn.innerText = opt;
-            btn.onclick = () => evaluateChoice(index === turnData.correct);
-            controls.appendChild(btn);
+            btn.onclick = () => {
+                if (idx === lvl.vocabCorrect) {
+                    alert("Đúng rồi! Spot on definition work.");
+                    currentPhase = "training_fill";
+                    gameTick();
+                } else {
+                    alert("Chưa đúng! Re-evaluate the term meaning.");
+                }
+            };
+            panel.appendChild(btn);
         });
     }
 
-    function evaluateChoice(success) {
-        if (success) {
-            enemyHP -= 100; // Step cleanly past the current balance target node
-            alert("Chính xác! Excellent answer choice.");
-        } else {
-            playerHP -= 25;
-            alert("Chưa đúng! Your memory focus slips slightly.");
-        }
+    function renderFillScreen(lvl) {
+        let txt = document.createElement('div');
+        txt.className = "story-text";
+        txt.innerHTML = `<span class="badge badge-training">Phase 2: Sentence Completion</span><br><br>${lvl.fillPrompt}`;
+        view.appendChild(txt);
 
-        document.getElementById('enemy-hp').style.width = `${Math.max(0, enemyHP)}%`;
-        document.getElementById('enemy-hp-text').innerText = `HP: ${Math.max(0, enemyHP)}/100`;
-        document.getElementById('player-hp').style.width = `${Math.max(0, playerHP)}%`;
-        document.getElementById('player-hp-text').innerText = `HP: ${Math.max(0, playerHP)}/100`;
-
-        if (playerHP <= 0) {
-            document.getElementById('dialogue').innerText = "Focus depleted! Review your notes from Vinh Tran and try again.";
-            document.getElementById('controls').innerHTML = `<button style="text-align:center;" onclick="restartSyllabus()">Try Again</button>`;
-            return;
-        }
-
-        if (enemyHP <= 0) {
-            currentIdx++;
-            enemyHP = 100;
-            setTimeout(renderActiveRound, 400);
-        }
+        lvl.fillOptions.forEach((opt, idx) => {
+            let btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => {
+                if (idx === lvl.fillCorrect) {
+                    alert("Xuất sắc! Entering the open world narrative space...");
+                    currentPhase = "world_story";
+                    currentStoryNode = "start";
+                    gameTick();
+                } else {
+                    alert("Not quite right. Look at the context parameters closely.");
+                }
+            };
+            panel.appendChild(btn);
+        });
     }
 
-    function playVinhAudio(phrase) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const speechUnit = new SpeechSynthesisUtterance(phrase);
-            speechUnit.lang = 'vi-VN';
-            speechUnit.rate = 0.82; // Accessible learning cadence
-            window.speechSynthesis.speak(speechUnit);
-        } else {
-            alert("Text-to-speech module not found on this interface.");
-        }
+    function renderStoryScreen(lvl) {
+        let node = lvl.story[currentStoryNode];
+        let txt = document.createElement('div');
+        txt.className = "story-text";
+        txt.innerHTML = `<span class="badge badge-world">Phase 3: Interactive Fiction</span><br><br>${node.text}`;
+        view.appendChild(txt);
+
+        node.choices.forEach(choice => {
+            let btn = document.createElement('button');
+            btn.innerText = choice.text;
+            btn.onclick = () => {
+                if (choice.target === "next_level_trigger") {
+                    currentLevelIndex++;
+                    currentPhase = "training_match";
+                    gameTick();
+                } else if (choice.target === "campaign_restart") {
+                    currentLevelIndex = 0;
+                    currentPhase = "training_match";
+                    gameTick();
+                } else {
+                    currentStoryNode = choice.target;
+                    gameTick();
+                }
+            };
+            panel.appendChild(btn);
+        });
     }
 
-    function restartSyllabus() {
-        playerHP = 100;
-        enemyHP = 100;
-        currentIdx = 0;
-        document.getElementById('enemy-hp').style.width = '100%';
-        document.getElementById('player-hp').style.width = '100%';
-        document.getElementById('enemy-hp-text').innerText = "HP: 100/100";
-        document.getElementById('player-hp-text').innerText = "HP: 100/100";
-        renderActiveRound();
-    }
-
-    // Launch instant execution loop
-    renderActiveRound();
+    // Launch instant engine initialization
+    gameTick();
 </script>
 </body>
 </html>
