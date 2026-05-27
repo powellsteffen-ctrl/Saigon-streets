@@ -1,247 +1,318 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saigon Chronicles: Immersion Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sài Gòn Lesson Quest</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0b0b13;
-            color: #e2e2e2;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
-        .game-container {
-            width: 100%;
-            max-width: 550px;
-            background-color: #161624;
-            border: 3px solid #00fff5;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0px 10px 30px rgba(0,0,0,0.7);
-        }
-        h2 { text-align: center; color: #00fff5; margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
-        .stat-panel {
-            background-color: #0b0b13;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            border: 1px solid #22223b;
+        #game-container {
+            flex: 1;
             display: flex;
+            flex-direction: column;
+            padding: 16px;
+            box-sizing: border-box;
             justify-content: space-between;
         }
-        .stat-value { font-weight: bold; color: #00fff5; }
-        .btn {
-            background-color: #00fff5;
-            color: #161624;
-            border: none;
-            padding: 14px;
-            width: 100%;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 15px;
-            font-size: 15px;
-            transition: all 0.2s;
+        #header-zone {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1e1e1e;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        #mode-badge {
+            font-size: 0.75rem;
             text-transform: uppercase;
-        }
-        .btn:hover { background-color: #fff; box-shadow: 0 0 10px #00fff5; }
-        .audio-btn {
-            background-color: #ff5270;
-            color: white;
-            padding: 8px;
-            margin-bottom: 10px;
-            text-transform: none;
-            font-size: 14px;
-        }
-        .audio-btn:hover { background-color: #ff758f; box-shadow: 0 0 10px #ff5270;}
-        .story-box {
-            background-color: #0b0b13;
-            border-left: 4px solid #00fff5;
-            padding: 18px;
-            min-height: 140px;
-            margin-bottom: 20px;
+            padding: 4px 8px;
             border-radius: 4px;
-            line-height: 1.6;
-            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
         }
-        .choice-container { display: flex; flex-direction: column; gap: 10px; }
-        .choice-btn {
-            background-color: #22223b;
-            color: #e2e2e2;
-            border: 1px solid #00fff5;
+        .badge-vocab { background-color: #d63031; color: white; }
+        .badge-reading { background-color: #0984e3; color: white; }
+        .badge-listening { background-color: #6c5ce7; color: white; }
+        .badge-speaking { background-color: #00b894; color: white; }
+
+        #screen {
+            flex: 1;
+            background-color: #1a1a1a;
+            border: 3px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            text-align: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+        }
+        .hp-bar {
+            width: 100%;
+            background-color: #333;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 4px 0;
+            border: 1px solid #444;
+        }
+        .hp-fill {
+            height: 100%;
+            background-color: #ff4757;
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+        #enemy-hp { background-color: #2ed573; }
+        #prompt-context {
+            color: #aaa;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #dialogue {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin: 15px 0;
+            color: #fff;
+        }
+        #controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        button {
+            background-color: #252525;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 14px;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
             text-align: left;
-            text-transform: none;
-            font-weight: normal;
         }
-        .choice-btn:hover { background-color: #00fff5; color: #161624; }
-        .success-text { color: #00ff87; font-weight: bold; }
-        .fail-text { color: #ff5270; font-weight: bold; }
+        button:active {
+            background-color: #333;
+            transform: scale(0.99);
+        }
+        .audio-btn {
+            background-color: #6c5ce7;
+            border-color: #5b4bc4;
+            padding: 10px 20px;
+            margin-top: 10px;
+            text-align: center;
+            display: inline-block;
+            font-weight: bold;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="game-container">
-        <h2>🛵 Saigon Immersion</h2>
-        
-        <div class="stat-panel">
-            <div>🔋 Stamina: <span id="stat-energy" class="stat-value">100</span>%</div>
-            <div>🏆 Score: <span id="stat-score" class="stat-value">0</span></div>
-        </div>
-
-        <button class="btn" onclick="nextEncounter()">✨ Tiếp Tục (Next Encounter)</button>
-        <button class="btn audio-btn" id="speak-btn" onclick="speakCurrentStory()" style="display:none;">🔊 Nghe lại (Listen Again)</button>
-
-        <div class="story-box" id="story-text">
-            Chào mừng bạn! Trò chơi này hoàn toàn bằng tiếng Việt. Nếu chọn đúng, bạn sẽ nhận được thể lực (Stamina). Nếu chọn sai, hệ thống sẽ giải thích bằng tiếng Anh. Click ở trên để bắt đầu!
-        </div>
-
-        <div class="choice-container" id="choices-box"></div>
+<div id="game-container">
+    <div id="header-zone">
+        <span id="mode-badge" class="badge-vocab">Vocab</span>
+        <span id="score-tracking">Quest: <span id="progress-count">1</span>/4</span>
     </div>
 
-    <script>
-        let energy = 100;
-        let score = 0;
-        let currentSpeechText = "";
+    <div id="screen">
+        <div style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span id="enemy-name">Bài Học Monster</span>
+                <span id="enemy-hp-text">HP: 100/100</span>
+            </div>
+            <div class="hp-bar"><div id="enemy-hp" class="hp-fill"></div></div>
+        </div>
 
-        const encounters = [
-            {
-                type: "reading",
-                story: "Bạn đang ở trung tâm tiếng Anh. Sếp của bạn đi vào phòng và muốn bạn đổi giờ dạy cho học kỳ mới vì có một bé gái mới nhập học. Bạn nên trả lời thế nào để chuyên nghiệp nhất?",
-                choices: [
-                    { text: "Dạ được, để em xem lại thời gian rồi báo sếp nha.", isCorrect: true, feedback: "Chính xác! Bạn rất chuyên nghiệp. Sếp đánh giá cao chất lượng làm việc của bạn." },
-                    { text: "Không được, em muốn nghỉ hè và đi chơi sông ở Mũi Né.", isCorrect: false, feedback: "Wrong approach! You refused your boss bluntly while asking for summer break (nghỉ hè). This damages your workplace score." }
-                ]
-            },
-            {
-                type: "listening",
-                story: "Hãy nghe kỹ cụm từ sau đây và chọn ý nghĩa đúng nhất của nó.",
-                audioText: "Thay nhớt với bơm bánh xe dùm con nha Chú",
-                choices: [
-                    { text: "You are asking an older mechanic to change your oil and pump your tires.", isCorrect: true, feedback: "Xuất sắc! Bạn nghe rất tốt. Cụm từ 'dùm con' rất phù hợp khi nói chuyện với Chú sửa xe." },
-                    { text: "You are asking a colleague to modify your classroom lesson plan.", isCorrect: false, feedback: "Incorrect. 'Thay nhớt' means oil change and 'bánh xe' means tires. You mixed up a mechanic run with school administration!" }
-                ]
-            },
-            {
-                type: "reading",
-                story: "Hôm qua bạn bị ngộ độc thực phẩm nặng. Hôm nay đi học lại, đồng nghiệp hỏi thăm sức khỏe của bạn. Bạn muốn nói bạn vẫn còn hơi mệt nhưng sẽ cố gắng dạy học.",
-                choices: [
-                    { text: "Em vẫn hơi mệt nhưng em sẽ cố gắng dạy học nha.", isCorrect: true, feedback: "Tuyệt vời! Từ 'vẫn' và 'cố gắng' được dùng rất tự nhiên trong ngữ cảnh này." },
-                    { text: "Em trúng thực nên em muốn đi về ngủ bải học bồi học.", isCorrect: false, feedback: "Tone trap triggered! 'Bài học' means lesson material, and accidentally confusing tones here causes linguistic confusion or introduces accidental vulgarities." }
-                ]
-            },
-            {
-                type: "listening",
-                story: "Nghe Chú sửa xe hỏi bạn sau khi sửa xong xe máy ở Bình Thạnh:",
-                audioText: "Của con hết bốn mươi nghìn, lấy đồ chua không?",
-                choices: [
-                    { text: "He is asking you for 40,000 VND and joking about pickled vegetables.", isCorrect: true, feedback: "Đúng rồi! Bạn đã bắt được từ 'bốn mươi nghìn' (40k) và 'đồ chua'." },
-                    { text: "He is asking you to change the oil filter immediately.", isCorrect: false, feedback: "Incorrect. He was stating the total price ('bốn mươi nghìn') and throwing in a casual food reference." }
-                ]
-            },
-            {
-                type: "reading",
-                story: "Bạn đi nhậu với đồng nghiệp ở Bình Thạnh. Bạn muốn gọi thêm một đĩa tóp mỡ và dặn phục vụ cho thêm nước tương.",
-                choices: [
-                    { text: "Cho em một đĩa tóp mỡ, thêm nước tương nha anh.", isCorrect: true, feedback: "Quá ngon! Bạn gọi món rất chuẩn Sài Gòn. Thể lực của bạn tăng lên!" },
-                    { text: "Em muốn sử dụng nước tương trên cái bánh xe này.", isCorrect: false, feedback: "Linguistic error! You used 'sử dụng' (formal documentation use) instead of casual 'xài/cho em', and asked to put soy sauce on a wheel ('bánh xe')!" }
-                ]
-            }
-        ];
+        <div>
+            <div id="prompt-context">Initializing...</div>
+            <div id="dialogue">Loading syllabus array...</div>
+            <button id="listen-btn" class="audio-btn" style="display:none;">🔊 Nghe (Southern Voice)</button>
+        </div>
 
-        // Built-in browser text-to-speech engine
-        // UPGRADED SOUTHERN VOICE ENGINE
-function speak(text) {
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); 
-        let utterance = new SpeechSynthesisUtterance(text);
+        <div style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span>Your Focus (HP)</span>
+                <span id="player-hp-text">HP: 100/100</span>
+            </div>
+            <div class="hp-bar"><div id="player-hp" class="hp-fill"></div></div>
+        </div>
+    </div>
+
+    <div id="controls">
+        <!-- Choices injected dynamically -->
+    </div>
+</div>
+
+<script>
+    // Pure data balanced to hit exactly 25% distribution across all four key skills using your chat data points
+    const balancedSyllabus = [
+        {
+            type: "vocab",
+            badgeText: "Single Vocab",
+            badgeClass: "badge-vocab",
+            enemy: "Vocabulary Warden",
+            prompt: "Your teacher Vinh Tran points out that your food tastes exceptionally fatty and rich. What Southern culinary term describes this deep, creamy characteristic?",
+            options: [
+                "Nước tương (Soy sauce)",
+                "Béo (Creamy / Fatty flavor profile)",
+                "Đồ chua (Pickled vegetables)",
+                "Mặn (Salty food seasoning)"
+            ],
+            correct: 1
+        },
+        {
+            type: "reading",
+            badgeText: "Short Reading",
+            badgeClass: "badge-reading",
+            enemy: "Context Guardian",
+            prompt: "Read this local Southern observation snippet:\n'Bên ngoài trời đang giông bão lớn, sấm sét rất nguy hiểm. Anh ở nhà thôi nghen, đừng đi ra ngoài đường kẻo bị té hoặc cảm bệnh.'\nWhat is the absolute main advice given in this text?",
+            options: [
+                "You should go to the local market before it gets completely dark.",
+                "It is storming dangerously outside, so you must stay home to remain safe.",
+                "You need to quickly rent a motorbike to drive through District 1."
+            ],
+            correct: 1
+        },
+        {
+            type: "listening",
+            badgeText: "Listening Activity",
+            badgeClass: "badge-listening",
+            enemy: "Aural Specter",
+            prompt: "Press the audio button to listen carefully to the speaker's medical explanation, then identify the diagnosis mentioned:",
+            audioText: "Coi chừng anh bị ngộ độc thực phẩm do sapovirus đó nha.",
+            options: [
+                "They suspect you are suffering from a chronic case of diabetes (tiểu đường).",
+                "They believe you are experiencing acute food poisoning (ngộ độc thực phẩm) from sapovirus.",
+                "They are advising you to take care of your teeth (răng) at the dentist."
+            ],
+            correct: 1
+        },
+        {
+            type: "speaking",
+            badgeText: "Speaking Phrasing",
+            badgeClass: "badge-speaking",
+            enemy: "Pronoun Master",
+            prompt: "You want to naturally say goodbye to your wife using informal Southern affectionate speech before heading out to work. Choose the proper phrasing:",
+            options: [
+                "Anh đi dạy nha chú rể.",
+                "Anh đi dạy nha bà xã.",
+                "Con xin phép đi về nghen ông xã."
+            ],
+            correct: 1,
+            audioText: "Anh đi dạy nha bà xã."
+        }
+    ];
+
+    let currentIdx = 0;
+    let playerHP = 100;
+    let enemyHP = 100;
+
+    function renderActiveRound() {
+        if (currentIdx >= balancedSyllabus.length) {
+            document.getElementById('dialogue').innerHTML = "🎯 Perfect Score! Your lesson review is complete. You successfully handled vocab, reading chunks, listening, and speaking modules equally!";
+            document.getElementById('controls').innerHTML = `<button style="text-align:center;" onclick="restartSyllabus()">Restart Review Iteration</button>`;
+            return;
+        }
+
+        const turnData = balancedSyllabus[currentIdx];
         
-        // 1. Fetch all available native voice patches on your phone/computer
-        let voices = window.speechSynthesis.getVoices();
-        
-        // 2. Scan the device for a dedicated Ho Chi Minh City / Southern engine
-        // On modern Android/iOS systems, this is often named "Linh" or contains "South"
-        let southernVoice = voices.find(voice => 
-            voice.lang.includes('vi') && 
-            (voice.name.toLowerCase().includes('south') || voice.name.toLowerCase().includes('hcmc'))
-        );
-        
-        if (southernVoice) {
-            utterance.voice = southernVoice; // 🌟 Locks in the Saigon Accent!
+        // Update skill framework UI tracking markers
+        const badge = document.getElementById('mode-badge');
+        badge.innerText = turnData.badgeText;
+        badge.className = ''; 
+        badge.classList.add(turnData.badgeClass);
+
+        document.getElementById('enemy-name').innerText = turnData.enemy;
+        document.getElementById('progress-count').innerText = currentIdx + 1;
+        document.getElementById('prompt-context').innerText = `Module Structure: ${turnData.type.toUpperCase()}`;
+        document.getElementById('dialogue').innerText = turnData.prompt;
+
+        const listenBtn = document.getElementById('listen-btn');
+        const controls = document.getElementById('controls');
+        controls.innerHTML = '';
+
+        if (turnData.type === "listening") {
+            listenBtn.style.display = 'block';
+            listenBtn.onclick = () => playVinhAudio(turnData.audioText);
         } else {
-            utterance.lang = 'vi-VN'; // Fallback to standard Vietnamese if no specific region is downloaded
+            listenBtn.style.display = 'none';
         }
-        
-        utterance.rate = 0.85; // Keeps the speed slow enough to track the "Saigon Slur"
-        window.speechSynthesis.speak(utterance);
+
+        turnData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => evaluateChoice(index === turnData.correct);
+            controls.appendChild(btn);
+        });
     }
-}
 
-// Crucial: Browsers load voices asynchronously, this line ensures they load immediately on page refresh
-window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
-
-        function speakCurrentStory() {
-            if (currentSpeechText) {
-                speak(currentSpeechText);
-            }
+    function evaluateChoice(success) {
+        if (success) {
+            enemyHP -= 100; // Step cleanly past the current balance target node
+            alert("Chính xác! Excellent answer choice.");
+        } else {
+            playerHP -= 25;
+            alert("Chưa đúng! Your memory focus slips slightly.");
         }
 
-        function nextEncounter() {
-            if (energy <= 0) {
-                document.getElementById("story-text").innerHTML = "<span class='fail-text'>GAME OVER!</span> Bạn đã hết thể lực vì thức khuya. Hãy xin sếp nghỉ hè hoặc lấy một ngày nghỉ để hồi phục!";
-                document.getElementById("choices-box").innerHTML = "";
-                document.getElementById("speak-btn").style.display = "none";
-                return;
-            }
+        document.getElementById('enemy-hp').style.width = `${Math.max(0, enemyHP)}%`;
+        document.getElementById('enemy-hp-text').innerText = `HP: ${Math.max(0, enemyHP)}/100`;
+        document.getElementById('player-hp').style.width = `${Math.max(0, playerHP)}%`;
+        document.getElementById('player-hp-text').innerText = `HP: ${Math.max(0, playerHP)}/100`;
 
-            const randomIdx = Math.floor(Math.random() * encounters.length);
-            const scene = encounters[randomIdx];
-
-            document.getElementById("story-text").innerHTML = scene.story;
-            
-            // Handle audio/listening configurations
-            if (scene.type === "listening") {
-                currentSpeechText = scene.audioText;
-                document.getElementById("speak-btn").style.display = "block";
-                // Trigger auto-play for listening challenges
-                setTimeout(() => { speak(scene.audioText); }, 300);
-            } else {
-                currentSpeechText = scene.story.replace(/<[^>]*>/g, ''); // strip HTML tags
-                document.getElementById("speak-btn").style.display = "block";
-            }
-            
-            let choicesHTML = "";
-            scene.choices.forEach((choice, index) => {
-                choicesHTML += `<button class="btn choice-btn" onclick="chooseOption(${randomIdx}, ${index})">👉 ${choice.text}</button>`;
-            });
-            document.getElementById("choices-box").innerHTML = choicesHTML;
+        if (playerHP <= 0) {
+            document.getElementById('dialogue').innerText = "Focus depleted! Review your notes from Vinh Tran and try again.";
+            document.getElementById('controls').innerHTML = `<button style="text-align:center;" onclick="restartSyllabus()">Try Again</button>`;
+            return;
         }
 
-        function chooseOption(sceneIdx, choiceIdx) {
-            const selected = encounters[sceneIdx].choices[choiceIdx];
-            document.getElementById("speak-btn").style.display = "none";
-            
-            if (selected.isCorrect) {
-                score += 20;
-                energy += 10; // Stamina goes UP or regenerates on correct answers
-                if (energy > 100) energy = 100;
-                
-                document.getElementById("story-text").innerHTML = `<span class='success-text'>Chính xác! 🎉</span><br><br>${selected.feedback}`;
-            } else {
-                score -= 5;
-                energy -= 25; // Stamina drops heavily on mistakes
-                if (energy < 0) energy = 0;
-                
-                document.getElementById("story-text").innerHTML = `<span class='fail-text'>Sai rồi! ❌</span><br><br>${selected.feedback}`;
-            }
-            
-            document.getElementById("stat-energy").innerText = energy;
-            document.getElementById("stat-score").innerText = score;
-            document.getElementById("choices-box").innerHTML = "";
+        if (enemyHP <= 0) {
+            currentIdx++;
+            enemyHP = 100;
+            setTimeout(renderActiveRound, 400);
         }
-    </script>
+    }
+
+    function playVinhAudio(phrase) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const speechUnit = new SpeechSynthesisUtterance(phrase);
+            speechUnit.lang = 'vi-VN';
+            speechUnit.rate = 0.82; // Accessible learning cadence
+            window.speechSynthesis.speak(speechUnit);
+        } else {
+            alert("Text-to-speech module not found on this interface.");
+        }
+    }
+
+    function restartSyllabus() {
+        playerHP = 100;
+        enemyHP = 100;
+        currentIdx = 0;
+        document.getElementById('enemy-hp').style.width = '100%';
+        document.getElementById('player-hp').style.width = '100%';
+        document.getElementById('enemy-hp-text').innerText = "HP: 100/100";
+        document.getElementById('player-hp-text').innerText = "HP: 100/100";
+        renderActiveRound();
+    }
+
+    // Launch instant execution loop
+    renderActiveRound();
+</script>
 </body>
 </html>
