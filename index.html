@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sài Gòn Chronicles: Interactive Catalog</title>
+    <title>Sài Gòn Quest v3</title>
     <style>
         body {
             margin: 0;
@@ -79,9 +79,27 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
+        .badge-pre { background-color: #e74c3c; color: white; }
         .badge-training { background-color: #0984e3; color: white; }
         .badge-world { background-color: #00b894; color: white; }
-        .badge-bonus { background-color: #e67e22; color: white; }
+        
+        /* Dropdown English translations system styling */
+        details {
+            background-color: #222;
+            border: 1px dashed #555;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        summary {
+            cursor: pointer;
+            color: #3498db;
+            font-weight: bold;
+            outline: none;
+            user-select: none;
+        }
+        
         #choice-panel {
             display: grid;
             grid-template-columns: 1fr;
@@ -102,296 +120,243 @@
         button:active {
             background-color: #333;
         }
+        .audio-btn {
+            background-color: #6c5ce7;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
 
 <div id="game-container">
     <div id="control-bar">
-        <span style="font-size:0.85rem; color:#aaa;">Jump to Level:</span>
+        <span style="font-size:0.85rem; color:#aaa;">Chọn màn chơi:</span>
         <select id="level-select" onchange="jumpToLevel(this.value)">
-            <option value="0">Lvl 1: Bình Thạnh Alleyway</option>
-            <option value="1">Lvl 2: Quán Nhậu Market</option>
-            <option value="2">Lvl 3: Language Center Hub</option>
-            <option value="3">⭐ Lvl 4: BONUS Cumulative Review</option>
-            <option value="4">Lvl 5: The Advanced Street Routine</option>
-            <option value="5">Lvl 6: Corporate Operations</option>
-            <option value="6">Lvl 7: Semester Final Day</option>
+            <option value="0">Lvl 1: Phòng Tập & Đường Phố</option>
+            <option value="1">Lvl 2: Quán Ăn Đêm Sài Gòn</option>
+            <option value="2">Lvl 3: Văn Phòng Trung Tâm</option>
         </select>
     </div>
 
-    <div id="stage-header">LOADING FRAMEWORK...</div>
+    <div id="stage-header">DỮ LIỆU ĐANG TẢI...</div>
     <div id="viewport"></div>
     <div id="choice-panel"></div>
 </div>
 
 <script>
-    // ----------------------------------------------------
-    // COMPREHENSIVE 7-LEVEL STORY MATRIX DATA ASSET
-    // ----------------------------------------------------
     const gameLevels = [
         {
             levelNum: 1,
-            title: "LEVEL 1: BÌNH THẠNH ALLEYWAY (MODULES 1, 3, 4)",
-            vocabPrompt: "A mechanic looks at your bike. You want to ask an older uncle (Chú) politely to inflate your flat tire. What is your modifier?",
-            options: ["Bơm bánh xe dùm em.", "Bơm bánh xe dùm con.", "Thay vỏ xe nhé."],
-            correct: 1,
-            fillPrompt: "Fill in the blank tracking your accident status parameter:<br><br>'Đường nhỏ này trơn quá, hồi nãy đi nhanh em bị __________ đau chân.'",
-            fillOptions: ["vào", "chỉ", "bị té"],
-            fillCorrect: 2,
+            title: "MÀN 1: BÌNH THẠNH - PHÒNG TẬP TẠ & ĐƯỜNG PHỐ",
+            
+            // TASK 1: Pre-Level vocabulary word assessment matrix
+            preVocab: [
+                { word: "Xài", english: "To use / Spend (Southern dialect)", options: ["To sell", "To use / Spend", "To study"], correct: 1 },
+                { word: "Trễ", english: "Late", options: ["Early", "Fast", "Late"], correct: 2 },
+                { word: "Bị té", english: "To slip / Fall down by accident", options: ["To fall down", "To repair gear", "To turn right"], correct: 0 }
+            ],
+            
+            // Phase 1 Context Drill (Fully in Vietnamese with English Toggle backing data structures)
+            vocabPromptVi: "Bạn đang ở phòng tập tạ (gym) ở Bình Thạnh. Bạn muốn tập trung vào bài tập ngực (chest). Huấn luyện viên bảo bạn phải thực hiện động tác PUSH. Bạn sẽ nói thế nào?",
+            vocabPromptEn: "You are at a weightlifting gym in Binh Thanh. You want to focus on a chest routine. The coach tells you to perform a PUSH action. What do you say?",
+            optionsVi: ["Đẩy ngực mạnh lên nha anh.", "Kéo cái cùi chỏ ra sau nha anh."],
+            correct: 0,
+            
+            // TASK 3: Multiple consecutive listening tracking cards per stage layer node
+            listeningTasks: [
+                {
+                    promptVi: "Nhiệm vụ nghe 1: Hãy nghe kỹ câu hỏi của huấn luyện viên sau bài tập nặng và chọn nghĩa chính xác:",
+                    promptEn: "Listening Task 1: Listen closely to the coach's query after a heavy working set, then choose the correct meaning:",
+                    audioText: "Anh có sao không? Tập xong thấy đau chân hay mỏi ngực không anh?",
+                    choicesVi: [
+                        "He is asking if you are okay and checking if your legs or chest feel painful.",
+                        "He is advising you to pack up your gym gear and change your motorbike oil filter."
+                    ],
+                    correct: 0
+                },
+                {
+                    promptVi: "Nhiệm vụ nghe 2: Bạn đi GrabBike về nhà. Đến nơi, bạn không có tiền mặt và muốn dùng ngân hàng để thanh toán. Hãy nghe kỹ tài xế nói gì:",
+                    promptEn: "Listening Task 2: You take a GrabBike home. Upon arrival, you have no cash and want to use online banking. Listen closely to what you ask the driver:",
+                    audioText: "Anh ơi cho em chuyển khoản số tài khoản của anh là gì",
+                    choicesVi: [
+                        "You are stating that the smartphone banking system app has reset unexpectedly.",
+                        "You are asking the driver for his account number to perform an instant mobile bank transfer."
+                    ],
+                    correct: 1
+                }
+            ],
+            
             story: {
                 start: {
-                    text: "You are cruising through a tight alleyway in Bình Thạnh when you realize your engine feels sluggish and you hit heavy gridlock. You locate a mechanical shop marker.",
+                    textVi: "Sau khi rời phòng tập, bạn chạy xe vào một con hẻm nhỏ ở Bình Thạnh. Xe của bạn bỗng nhiên bị yếu máy và lốp xe bị mềm. Bạn nhìn thấy một tiệm sửa xe của một chú thợ lớn tuổi.",
+                    textEn: "After leaving the gym, you ride into a tight Binh Thanh alley. Your bike suddenly feels weak and the tire goes soft. You spot a repair shop run by an older uncle.",
                     choices: [
-                        { text: "Pull in and ask: 'Thay nhớt với lọc nhớt dùm em nha.'", target: "shop_success" },
-                        { text: "Pull in and shout: 'Chào nhé! Vào đây!'", target: "shop_clash" }
+                        { textVi: "Nói: 'Chú ơi, bơm bánh xe với thay nhớt dùm con nha Chú.'", target: "shop_success" },
+                        { textVi: "Nói: 'Thay vỏ xe nhé! Vào đây!'", target: "shop_clash" }
                     ]
                 },
                 shop_clash: {
-                    text: "Using Northern 'nhé' in a Saigon alleyway sounds awkward and textbook-ish. The local mechanic looks slightly taken aback. Let's adapt our tone accent.",
-                    choices: [{ text: "Re-initiate dialogue tree", target: "start" }]
+                    textVi: "Sử dụng từ 'nhé' của miền Bắc trong hẻm Sài Gòn nghe rất gượng gạo và giống sách giáo khoa. Chú sửa xe nhìn bạn hơi ngạc nhiên. Hãy thử dùng kính ngữ miền Nam.",
+                    textEn: "Using Northern 'nhé' in a Saigon alley sounds stiff and textbook-like. The uncle looks surprised. Try using native Southern softeners.",
+                    choices: [{ textVi: "Quay lại nói chuyện tự nhiên hơn", target: "start" }]
                 },
                 shop_success: {
-                    text: "The mechanic smiles, nods, and swaps your oil ('thay nhớt'). As you wait, a sudden storm rolls in. The weather turns bad and you feel run down from staying up late.",
+                    textVi: "Chú sửa xe nhiệt tình làm giúp bạn liền. Trong lúc chờ đợi, trời bỗng đổ mưa giông lớn ngoài đường. Bạn thấy mệt mỏi vì tối qua lỡ thức khuya.",
+                    textEn: "The mechanic enthusiastically helps you right away. While waiting, a massive storm downpours outside. You feel exhausted because you stayed up late last night.",
                     choices: [
-                        { text: "Say: 'Dạo này em hay thức khuya xài điện thoại nên người vẫn mệt.'", target: "victory" },
-                        { text: "Say: 'Em chỉ muốn đi vệ sinh trúng thực thôi.'", target: "shop_weird" }
+                        { textVi: "Nói: 'Dạo này em hay thức khuya xài điện thoại nên người vẫn mệt quá chú.'", target: "level_complete" }
                     ]
                 },
-                shop_weird: {
-                    text: "That phrase makes it sound like you WANT food poisoning! Focus on your baseline stamina traits instead.",
-                    choices: [{ text: "Re-phrase status description", target: "shop_success" }]
-                },
-                victory: {
-                    text: "The mechanic handles your bike flawlessly. 'Nhanh khỏe nha con!' he waves. You survive the alley adventure!",
-                    choices: [{ text: "Move to Level 2", target: "next_level_advance" }]
+                level_complete: {
+                    textVi: "Chú sửa xe cười rồi nói: 'Xong rồi con! Nhanh khỏe nha con!' Bạn chuyển khoản trả tiền xe rồi chạy về nhà an toàn. Hoàn thành Màn 1!",
+                    textEn: "The mechanic smiles: 'All done, son! Get well soon!' You transfer the vehicle funds and ride home safely. Level 1 Complete!",
+                    choices: [{ textVi: "Tiến vào Màn 2", target: "next_level_advance" }]
                 }
             }
         },
         {
             levelNum: 2,
-            title: "LEVEL 2: THE QUÁN NHẬU MARKET (MODULES 1, 2, 5)",
-            vocabPrompt: "Which of these terms describes crunchy pork fatback cubes added as a rich topping?",
-            options: ["Nước tương", "Đồ chua", "Tóp mỡ"],
-            correct: 2,
-            fillPrompt: "Complete this flavor-balancing custom profile request:<br><br>'Món gỏi gà này __________ quá, lấy thêm đồ chua cho đỡ ngán.'",
-            fillOptions: ["mặn", "bột", "chè"],
-            fillCorrect: 0,
+            title: "MÀN 2: QUÁN ĂN ĐÊM SÀI GÒN (MODULES 1, 2, 5)",
+            
+            preVocab: [
+                { word: "Tóp mỡ", english: "Crunchy pork cracklings / side topping", options: ["Soy sauce", "Pork cracklings", "Pickled veggies"], correct: 1 },
+                { word: "Đồ chua", english: "Pickled vegetables served on local dishes", options: ["Chili salt", "Sweet soup", "Pickled vegetables"], correct: 2 },
+                { word: "Mặn", english: "Salty profile texture modifier", options: ["Salty", "Sour", "Creamy"], correct: 0 }
+            ],
+            
+            vocabPromptVi: "Bạn muốn gọi thêm một chén mỡ heo chiên giòn để bỏ vào dĩa cơm tấm của mình. Bạn sẽ gọi món gì?",
+            vocabPromptEn: "You want to order an extra bowl of crispy deep-fried pork fatback to add to your broken rice plate. What do you ask for?",
+            optionsVi: ["Cho con xin thêm nước tương.", "Cho con gọi thêm một chén tóp mỡ nghen."],
+            correct: 1,
+            
+            listeningTasks: [
+                {
+                    promptVi: "Nhiệm vụ nghe 1: Người phục vụ bàn mang đồ ăn ra và dặn bạn điều này. Hãy nghe kỹ:",
+                    promptEn: "Listening Task 1: The food server brings out your plates and gives you this advice. Listen closely:",
+                    audioText: "Món gỏi gà này vị hơi mặn, anh nhớ ăn chung với đồ chua cho đỡ ngán nha.",
+                    choicesVi: [
+                        "They caution that the chicken salad is a bit salty, so remember to eat it with pickled veggies.",
+                        "They indicate that the kitchen has run out of fresh local lobsters and cashews."
+                    ],
+                    correct: 0
+                },
+                {
+                    promptVi: "Nhiệm vụ nghe 2: Bạn muốn mua một ít trái cây làm món tráng miệng từ một xe đẩy ven đường. Hãy nghe người bán tính tiền:",
+                    promptEn: "Listening Task 2: You want to purchase fruit for dessert from a roadside cart. Listen to the vendor calculate the bill:",
+                    audioText: "Tính hết luôn chuối sứ với hạt điều là năm mươi lăm ngàn chục nha con.",
+                    choicesVi: [
+                        "The vendor states the total for bananas and cashews is fifty-five thousand VND, utilizing regional counters.",
+                        "The vendor requests that you wait ten minutes because the dessert soup is still frozen hot."
+                    ],
+                    correct: 0
+                }
+            ],
+            
             story: {
                 start: {
-                    text: "You sit down at a popular late-night spot with friends. The menu lists premium luxury options like lobster (tôm hùm) and local street variables.",
+                    textVi: "Bạn cùng bạn bè ngồi ăn tại một quán nhậu bình dân. Thực đơn có rất nhiều món ăn hấp dẫn từ bình dân như chè đậu xanh đến cao cấp như tôm hùm.",
+                    textEn: "You and your friends are dining at an open-air street restaurant. The menu has items ranging from humble mung bean soup to premium lobsters.",
                     choices: [
-                        { text: "Order: 'Cho con dĩa gỏi gà với thêm chén tóp mỡ và nước tương nha.'", target: "feast_time" },
-                        { text: "Order: 'Lấy cho con một tô chè đậu xanh muối ớt nhiều bột.'", target: "chef_confused" }
+                        { textVi: "Gọi món: 'Cho con dĩa gỏi gà, thêm chén tóp mỡ béo với nước tương nha.'", target: "meal_flow" }
                     ]
                 },
-                chef_confused: {
-                    text: "Mung bean sweet soup combined with chili salt and raw seasoning powder sounds chaotic! The server stares blankly. Let's fix our food inventory targets.",
-                    choices: [{ text: "Re-order food modifications", target: "start" }]
-                },
-                feast_time: {
-                    text: "The food is spectacular! Your friends bring out fresh local fruits with chili salt (muối ớt) and a bag of premium local cashews (hạt điều). You check your watch—it's getting late.",
+                meal_flow: {
+                    textVi: "Bữa ăn cực kỳ ngon miệng! Tuy nhiên, một người bạn cứ liên tục gắp nhầm dĩa thức ăn của người khác do không chú ý.",
+                    textEn: "The meal is incredibly delicious! However, one friend keeps accidentally grabbing other people's food plates because they aren't paying attention.",
                     choices: [
-                        { text: "Say: 'Bữa ăn này ngon quá, cơ mà trễ rồi, em không muốn thức khuya.'", target: "victory" },
-                        { text: "Say: 'Hạt điều này muốn xài bài học rất giàu.'", target: "friend_lost" }
+                        { textVi: "Nhắc nhở: 'Lấy đồ ăn nhớ nhìn kỹ nha ông bạn, gắp nhầm dĩa của người ta rồi.'", target: "level_complete" }
                     ]
                 },
-                friend_lost: {
-                    text: "You mixed your tone arrays! Combining vocabulary blueprints with structural lesson keywords makes your friends completely lose track of the conversation.",
-                    choices: [{ text: "Re-state your departure line", target: "feast_time" }]
-                },
-                victory: {
-                    text: "You wrap up the meal cleanly, pay the tab, and head home fully recharged. Level 2 Complete!",
-                    choices: [{ text: "Move to Level 3", target: "next_level_advance" }]
+                level_complete: {
+                    textVi: "Bạn bè cùng cười vui vẻ. Bữa tối kết thúc thoải mái, mọi người tự trả tiền sòng phẳng rồi ra về. Hoàn thành Màn 2!",
+                    textEn: "Everyone laughs together. Dinner concludes comfortably, values are split fairly, and you head back. Level 2 Complete!",
+                    choices: [{ textVi: "Tiến vào Màn 3", target: "next_level_advance" }]
                 }
             }
         },
         {
             levelNum: 3,
-            title: "LEVEL 3: LANGUAGE CENTER HUB (MODULES 2, 6, 7)",
-            vocabPrompt: "What is the critical tonal difference for 'Lesson Content/Blueprint' (Low Falling Tone)?",
-            options: ["Buồi", "Bài học", "Buổi học"],
-            correct: 1,
-            fillPrompt: "Complete the administration shift request phrase:<br><br>'Dạo này em bận quá, sếp cho em __________ giờ lớp này được không sếp?'",
-            fillOptions: ["hợp", "đổi", "siêng"],
-            fillCorrect: 1,
-            story: {
-                start: {
-                    text: "You enter the language center branch. The operations staff looks stressed trying to manage academic course schedules. Your manager (quản lý) stops you to double-check a curriculum layout.",
-                    choices: [
-                        { text: "Say: 'Bài học này chất lượng lắm, em nghĩ học kỳ này học sinh sẽ rất thích.'", target: "admin_win" },
-                        { text: "Say: 'Em muốn đổi giờ bài học buồi này.'", target: "vulgarity_trap" }
-                    ]
-                },
-                vulgarity_trap: {
-                    text: "🚨 CRITICAL TONAL TRAP FIRED! You accidentally used a highly offensive vulgarity instead of saying class session! The office staff gasps. Instantly reload your safety profile.",
-                    choices: [{ text: "Apologize immediately and correct your tone", target: "start" }]
-                },
-                admin_win: {
-                    text: "The manager nods with relief. She commends you for being incredibly hardworking (siêng) and professional (chuyên nghiệp). Suddenly, a father approaches the front counter.",
-                    choices: [
-                        { text: "Observe: 'Chú đó đang muốn để con ở trung tâm rồi chiều quay lại đón.'", target: "victory" },
-                        { text: "Observe: 'Người lạ đó đang muốn kinh doanh hiểu sai rất giàu.'", target: "clerk_lost" }
-                    ]
-                },
-                clerk_lost: {
-                    text: "That phrase makes you sound like a suspicious data broker! Let's pick a clear, practical classroom management observation.",
-                    choices: [{ text: "Re-evaluate parental action", target: "admin_win" }]
-                },
-                victory: {
-                    text: "You settle the class logistics cleanly. You are maintaining stellar rapport across the staff room. Level 3 Complete!",
-                    choices: [{ text: "Unlock Level 4 Bonus Review", target: "next_level_advance" }]
-                }
-            }
-        },
-        {
-            levelNum: 4,
-            title: "⭐ LEVEL 4: BONUS CUMULATIVE REVIEW (MODULES 1 - 7)",
-            vocabPrompt: "Review Checkpoint: Identify the colloquial HCMC street slang for 'Food Poisoning' from your recovery notes:",
-            options: ["Ngộ độc thực phẩm", "Trúng thực", "Hiểu sai"],
-            correct: 1,
-            fillPrompt: "Review Checkpoint: Fill in the missing conversational particle mapping to iconic Saigon dialogue closers:<br><br>'Em vừa mới sửa xe xong nè, bây giờ chạy qua trung tâm gặp đồng nghiệp luôn __________.'",
-            fillOptions: ["nhé", "nha", "vào"],
-            fillCorrect: 1,
-            story: {
-                start: {
-                    text: "GRAND MATRIX REVIEW: You are charting a massive day. You need to pick up a tire part, grab a street lunch, and coordinate hours with your boss (sếp) without hitting tonal barriers.",
-                    choices: [
-                        { text: "Plan: 'Tính đi thay nhớt, ăn dĩa cơm tấm tóp mỡ rồi qua trung tâm đổi giờ dạy.'", target: "review_victory" },
-                        { text: "Plan: 'Mình muốn trúng thực vào buổi học buồi này.'", target: "review_disaster" }
-                    ]
-                },
-                review_disaster: {
-                    text: "You triggered multiple tone errors and combined the vulgarity trap with food poisoning parameters! Focus your baseline catalog markers.",
-                    choices: [{ text: "Clear mind and re-initialize blueprint paths", target: "start" }]
-                },
-                review_victory: {
-                    text: "🎉 BONUS MILESTONE MET! You locked down items from all prior modules perfectly without crashing into semantic deadlocks. The gateway to advanced tiers is now unlocked!",
-                    choices: [{ text: "Advance to Level 5", target: "next_level_advance" }]
-                }
-            }
-        },
-        {
-            levelNum: 5,
-            title: "LEVEL 5: THE ADVANCED STREET ROUTINE (MODULES 1, 3, 5)",
-            vocabPrompt: "What specific regional variation item is a 'Chuối sứ'?",
-            options: ["A specific local banana variety used in cooking", "A type of sweet mung bean broth", "A specialized mechanical socket wrench tool"],
+            title: "MÀN 3: VĂN PHÒNG TRUNG TÂM TIẾNG ANH (MODULES 2, 6, 7)",
+            
+            preVocab: [
+                { word: "Siêng", english: "Hardworking / Diligent trait", options: ["Lazy", "Hardworking", "Trendy"], correct: 1 },
+                { word: "Sếp", english: "Boss / Chief manager agent", options: ["Colleague", "Student", "Boss"], correct: 2 },
+                { word: "Chất lượng", english: "Quality metric index", options: ["Quality", "Schedule", "Reason"], correct: 0 }
+            ],
+            
+            vocabPromptVi: "Bạn muốn khen một câu chuyện đùa vui nhộn của một đồng nghiệp trong phòng hội họp bằng tiếng miền Nam tự nhiên nhất:",
+            vocabPromptEn: "You want to praise a funny joke made by a coworker in the meeting room using natural Southern terminology:",
+            optionsVi: ["Câu chuyện này mắc cười quá!", "Câu chuyện này bị tịch thu rồi."],
             correct: 0,
-            fillPrompt: "Complete the local market transaction prompt:<br><br>'Trái cây này ngon quá, bán cho con một __________ chuối sứ ăn thử nha.'",
-            fillOptions: ["chục (ten units)", "vỏ xe", "bột"],
-            fillCorrect: 0,
-            story: {
-                start: {
-                    text: "You are running weekend food preparation errands. You park your bike near a sprawling street layout. An elder lady is slicing up ingredients next to a cart profile.",
-                    choices: [
-                        { text: "Ask: 'Dì ơi, chuối sứ này bao nhiêu một chục vậy dì? Có được giảm giá không?'", target: "market_win" },
-                        { text: "Ask: 'Bơm bánh xe cái chuối sứ này dùm con vào nhé.'", target: "market_fail" }
-                    ]
+            
+            listeningTasks: [
+                {
+                    promptVi: "Nhiệm vụ nghe 1: Quản lý của trung tâm gặp bạn ở hành lang để trao đổi về lịch học kỳ mới. Hãy nghe kỹ:",
+                    promptEn: "Listening Task 1: The language center manager meets you in the hallway to discuss the new term schedule. Listen closely:",
+                    audioText: "Học kỳ này lớp mình có một bé gái rất thông minh, sếp muốn em tập trung dạy kỹ năng nói cho bé nha.",
+                    choicesVi: [
+                        "The manager points out that a highly intelligent little girl is in your class, and the boss wants you to target speaking skills.",
+                        "The manager requests that you change classrooms because a primary school student accidentally bit a co-worker."
+                    ],
+                    correct: 0
                 },
-                market_fail: {
-                    text: "Pumping air into a banana makes no logical sense! The street vendor laughs at your mixed-up nouns. Let's fix our shopping tags.",
-                    choices: [{ text: "Re-state product question", target: "start" }]
-                },
-                market_win: {
-                    text: "She hooks you up with a magnificent bunch and even adds an extra snack free of charge ('miễn phí'). You load the items into your storage box, ready to head back before dark.",
-                    choices: [
-                        { text: "Con xin phép đi về nha dì, chúc dì bán đắt hàng nghen!", target: "victory" },
-                        { text: "Con muốn thay vỏ xe nước tương này.", target: "market_weird" }
-                    ]
-                },
-                market_weird: {
-                    text: "Putting soy sauce on your tire shell is highly dangerous street behavior! Let's exit with natural polite softeners instead.",
-                    choices: [{ text: "Use conversational soften options", target: "market_win" }]
-                },
-                victory: {
-                    text: "You navigate back down the block seamlessly. Your food stock parameters are looking incredible. Level 5 Cleared!",
-                    choices: [{ text: "Move to Level 6", target: "next_level_advance" }]
+                {
+                    promptVi: "Nhiệm vụ nghe 2: Một người đồng nghiệp khác đang bàn bạc về việc thay đổi thời gian ca dạy. Hãy nghe lý do của họ:",
+                    promptEn: "Listening Task 2: Another colleague is discussing changing their teaching shift hours. Listen to their explanation:",
+                    audioText: "Em muốn đổi giờ ca dạy ngày mai vì có việc kinh doanh gia đình đột xuất, mong sếp duyệt giúp em.",
+                    choicesVi: [
+                        "They wish to switch tomorrow's shift hours due to an urgent family business commercial matter.",
+                        "They are announcing their formal retirement from the international language center network effective immediately."
+                    ],
+                    correct: 0
                 }
-            }
-        },
-        {
-            levelNum: 6,
-            title: "LEVEL 6: CORPORATE OPERATIONS (MODULES 2, 6)",
-            vocabPrompt: "What does the commercial business expression 'Kinh doanh' imply?",
-            options: ["To trade / Execute business activities", "To retire from a job profile", "To stay up late correcting homework files"],
-            correct: 0,
-            fillPrompt: "Complete the administration structural alignment update:<br><br>'Team mình muốn phát triển mảng _________ này nên cần tìm người có kinh nghiệm.'",
-            fillOptions: ["hiểu sai", "kinh doanh", "buồi"],
-            fillCorrect: 1,
+            ],
+            
             story: {
                 start: {
-                    text: "You are attending a high-level coordination sync with school administrators. The focus turns to evaluating team synergy (hợp), expansion, and commercial quality parameters.",
+                    textVi: "Bạn bước vào văn phòng giáo viên của trung tâm. Lịch làm việc trong học kỳ này khá dày đặc. Quản lý (quản lý) gọi bạn lại để kiểm tra giáo trình bài học.",
+                    textEn: "You step into the teacher staff room. The class workload this semester is quite packed. The manager calls you over to review your lesson materials.",
                     choices: [
-                        { text: "Suggest: 'Nếu muốn tăng chất lượng, đồng nghiệp cần có nhiều thời gian chuẩn bị hơn.'", target: "meeting_win" },
-                        { text: "Suggest: 'Sếp ơi, em nghĩ mình nên hiểu sai lý do nghỉ hưu dữ dội.'", target: "meeting_fail" }
+                        { textVi: "Nói: 'Bài học này chất lượng lắm, em đã chuẩn bị kỹ năng giao tiếp gấp đôi cho học sinh rồi.'", target: "admin_clear" },
+                        { textVi: "Nói: 'Em muốn đổi giờ bài học buồi này.'", target: "tone_trap" }
                     ]
                 },
-                meeting_fail: {
-                    text: "Suggesting that the team should actively misunderstand why people retire will get you a very strange look from HR. Let's provide solid performance feedback.",
-                    choices: [{ text: "Re-phrase operational feedback", target: "start" }]
+                tone_trap: {
+                    textVi: "🚨 BẪY PHÁT ÂM NGUY HIỂM! Bạn đã dùng nhầm một từ nhạy cảm thô tục thay vì nói buổi học! Không khí văn phòng bỗng lặng đi. Hãy lập tức sửa lại ngữ điệu.",
+                    textEn: "🚨 CRITICAL TONAL TRAP! You accidentally slipped a vulgar anatomy word instead of saying class period! The office falls dead silent. Correct your tone tags immediately.",
+                    choices: [{ textVi: "Xin lỗi đồng nghiệp và phát âm lại cho đúng", target: "start" }]
                 },
-                meeting_win: {
-                    text: "The director takes notes on your input. Your points match their long-term growth charts. They mention that an international credential update program is launching soon.",
+                admin_clear: {
+                    textVi: "Quản lý gật đầu rất hài lòng và khen bạn là một giáo viên rất siêng năng. Đúng lúc đó, một phụ huynh dắt con đến trung tâm.",
+                    textEn: "The manager nods with satisfaction, praising you as a diligent teacher. Right at that moment, a parent brings their child into the center.",
                     choices: [
-                        { text: "Say: 'Dạ, em luôn cố gắng học hỏi để làm việc chuyên nghiệp hơn.'", target: "victory" },
-                        { text: "Say: 'Em muốn đổi giờ thức khuya sang ban ngày.'", target: "meeting_absurd" }
+                        { textVi: "Nói: 'Phụ huynh đang để con ở trung tâm rồi lát nữa quay lại đón bé gái đó Chú.'", target: "campaign_complete" }
                     ]
-                },
-                meeting_absurd: {
-                    text: "You cannot change the time of staying up late to the daytime! That defies physics. Focus your professional dialogue selections.",
-                    choices: [{ text: "Re-state professional commitment", target: "meeting_win" }]
-                },
-                victory: {
-                    text: "The management tracking index updates beautifully. You're solidified as an invaluable pillar of the school team. Level 6 Cleared!",
-                    choices: [{ text: "Move to Level 7 Final Stage", target: "next_level_advance" }]
-                }
-            }
-        },
-        {
-            levelNum: 7,
-            title: "LEVEL 7: SEMESTER FINAL DAY (MODULES 2, 7)",
-            vocabPrompt: "Identify the tracking keyword that translates directly to 'Double / Twice the output multiplier':",
-            options: ["Gấp đôi", "Nhỏ", "Tuổi"],
-            correct: 0,
-            fillPrompt: "Complete the final classroom safety sequence sentence:<br><br>'Mấy đứa nhỏ hiếu động quá, chạy nhanh trong trung tâm dễ __________ lắm đó nha.'",
-            fillOptions: ["học kỳ", "bị té", "quốc tế"],
-            fillCorrect: 1,
-            story: {
-                start: {
-                    text: "It is the final day of the summer term session. The classroom is packed with highly energetic young primary student NPCs. A little girl (bé gái) is jumping around near the front row seating locations.",
-                    choices: [
-                        { text: "Instruct: 'Mấy con ngoan ngoãn ngồi xuống ghế nha, đừng chạy nhảy kẻo bị té đó.'", target: "class_safe" },
-                        { text: "Instruct: 'Con hãy cắn gấp đôi thời gian học kỳ quốc tế nhé!'", target: "class_chaos" }
-                    ]
-                },
-                class_chaos: {
-                    text: "Telling a primary student to bite down twice as hard on an international semester is an absolute nightmare command loop! Stop the chaos and issue a stable safety instruction.",
-                    choices: [{ text: "Re-issue safety command arrays", target: "start" }]
-                },
-                class_safe: {
-                    text: "The kids sit down cleanly ('ngồi xuống'). They look incredibly smart (thông minh). The parents show up at the center doors to pick up their children ('đón con') for summer break.",
-                    choices: [
-                        { text: "Tell them: 'Chúc phụ huynh và mấy bé có một kỳ nghỉ hè vui vẻ và hạnh phúc nghen!'", target: "campaign_complete" },
-                        { text: "Tell them: 'Học sinh này dạo này siêng thức khuya xài lọc nhớt lắm.'", target: "parents_lost" }
-                    ]
-                },
-                parents_lost: {
-                    text: "Telling a parent that their child stays up late playing with mechanic shop oil filters will spark a massive administrative inquiry! Reset your conversational track to warm holiday greetings.",
-                    choices: [{ text: "Re-state warm holiday parting lines", target: "class_safe" }]
                 },
                 campaign_complete: {
-                    text: "🏆 THE ULTIMATE CAMPAIGN IS CONCLUDED! You have seamlessly integrated all 7 modules, broken through the tone traps, mastered situational dialog, and built functional communication safety nets. Sài Gòn is officially your playground!",
-                    choices: [{ text: "Restart Master Adventure Loop", target: "loop_reset" }]
+                    textVi: "🏆 CHÚC MỪNG BẠN ĐÃ CHIẾN THẮNG V3! Bạn đã vượt qua tất cả các bài kiểm tra từ vựng đơn, xử lý trôi chảy các chuỗi nghe liên tiếp, và làm chủ toàn bộ hệ thống giao tiếp Sài Gòn!",
+                    textEn: "🏆 CONGRATULATIONS, YOU HAVE CONQUERED V3! You passed all pre-vocab tests, dominated continuous listening tracks, and commanded the entire Saigon conversational flow masterfully!",
+                    choices: [{ textVi: "Chơi lại từ đầu Chiến Dịch", target: "campaign_restart" }]
                 }
             }
         }
     ];
 
     // ----------------------------------------------------
-    // STATE ENGINE WITH PERSISTENT LOCAL STORAGE SAVES
+    // STATE ENGINE LOGIC & CONTROL PLATFORM
     // ----------------------------------------------------
-    let activeIndex = 0;
-    let activePhase = "training_match"; 
+    let currentLvlIdx = 0;
+    let currentPhase = "pre_vocab_gauntlet"; // pre_vocab_gauntlet -> main_match -> listening_train -> story_fiction
+    let preVocabStep = 0;
+    let listeningStep = 0;
     let activeStoryNode = "start";
 
     const view = document.getElementById('viewport');
@@ -399,121 +364,191 @@
     const header = document.getElementById('stage-header');
     const selector = document.getElementById('level-select');
 
-    // Load saved progress from local browser storage on boot up
-    function initProgressSaveState() {
-        let savedLvl = localStorage.getItem('saigon_quest_level');
-        if (savedLvl !== null) {
-            activeIndex = parseInt(savedLvl, 10);
-            selector.value = activeIndex;
+    function initGameProgress() {
+        let saved = localStorage.getItem('saigon_v3_level');
+        if (saved !== null) {
+            currentLvlIdx = parseInt(saved, 10);
+            selector.value = currentLvlIdx;
         }
-        activePhase = "training_match";
-        activeStoryNode = "start";
-        runEngineTick();
+        resetToLevelStart();
     }
 
-    // Triggered manually when the player alters the dropdown menu box selection configuration
+    function resetToLevelStart() {
+        currentPhase = "pre_vocab_gauntlet";
+        preVocabStep = 0;
+        listeningStep = 0;
+        activeStoryNode = "start";
+        engineTick();
+    }
+
     function jumpToLevel(val) {
-        activeIndex = parseInt(val, 10);
-        localStorage.setItem('saigon_quest_level', activeIndex);
-        activePhase = "training_match";
-        activeStoryNode = "start";
-        runEngineTick();
+        currentLvlIdx = parseInt(val, 10);
+        localStorage.setItem('saigon_v3_level', currentLvlIdx);
+        resetToLevelStart();
     }
 
-    function runEngineTick() {
+    function engineTick() {
         view.innerHTML = '';
         panel.innerHTML = '';
         
-        let currentLvl = gameLevels[activeIndex];
-        header.innerText = currentLvl.title;
-        selector.value = activeIndex; // sync UI selector state
+        let lvl = gameLevels[currentLvlIdx];
+        header.innerText = lvl.title;
+        selector.value = currentLvlIdx;
 
-        if (activePhase === "training_match") {
-            executeMatchLayout(currentLvl);
-        } else if (activePhase === "training_fill") {
-            executeFillLayout(currentLvl);
-        } else if (activePhase === "world_story") {
-            executeStoryLayout(currentLvl);
+        if (currentPhase === "pre_vocab_gauntlet") {
+            buildPreVocabScreen(lvl);
+        } else if (currentPhase === "main_match") {
+            buildMainMatchScreen(lvl);
+        } else if (currentPhase === "listening_train") {
+            buildListeningScreen(lvl);
+        } else if (currentPhase === "story_fiction") {
+            buildStoryScreen(lvl);
         }
     }
 
-    function executeMatchLayout(lvl) {
+    // TASK 1: Pre-level single word testing environment
+    function buildPreVocabScreen(lvl) {
+        let testWord = lvl.preVocab[preVocabStep];
         let block = document.createElement('div');
         block.className = "story-text";
-        block.innerHTML = `<span class="badge badge-training">Step 1: Term Definition Check</span><br><br>${lvl.vocabPrompt}`;
+        block.innerHTML = `<span class="badge badge-pre">KIỂM TRA TỪ VỰNG ĐẦU MÀN (${preVocabStep + 1}/3)</span><br><br>Chọn nghĩa tiếng Anh chính xác cho từ: <strong>"${testWord.word}"</strong>`;
         view.appendChild(block);
 
-        lvl.options.forEach((opt, idx) => {
+        testWord.options.forEach((opt, idx) => {
+            let btn = document.createElement('button');
+            btn.innerText = `${idx + 1}. ${opt}`;
+            btn.onclick = () => {
+                if (idx === testWord.correct) {
+                    alert("Đúng rồi!");
+                    preVocabStep++;
+                    if (preVocabStep >= lvl.preVocab.length) {
+                        alert("Mở khóa màn chơi thành công! Bắt đầu học ngữ cảnh.");
+                        currentPhase = "main_match";
+                    }
+                    engineTick();
+                } else {
+                    alert(`Chưa chính xác! "${testWord.word}" nghĩa là: ${testWord.english}`);
+                }
+            };
+            panel.appendChild(btn);
+        });
+    }
+
+    // TASK 2: Immersive Vietnamese questions with English Toggle Dropdowns
+    function buildMainMatchScreen(lvl) {
+        let block = document.createElement('div');
+        block.className = "story-text";
+        block.innerHTML = `<span class="badge badge-training">BƯỚC 1: ĐÁNH GIÁ NGỮ CẢNH</span><br><br>${lvl.vocabPromptVi}`;
+        
+        // English translation drop down system mechanism
+        let details = document.createElement('details');
+        details.innerHTML = `<summary>Dịch sang tiếng Anh / View English Hint</summary><p style='margin: 8px 0 0 0; color:#3498db;'>${lvl.vocabPromptEn}</p>`;
+        block.appendChild(details);
+        view.appendChild(block);
+
+        lvl.optionsVi.forEach((opt, idx) => {
             let btn = document.createElement('button');
             btn.innerText = `${idx + 1}. ${opt}`;
             btn.onclick = () => {
                 if (idx === lvl.correct) {
-                    alert("Đúng rồi! Perfect conceptual match.");
-                    activePhase = "training_fill";
-                    runEngineTick();
+                    alert("Chính xác!");
+                    currentPhase = "listening_train";
+                    listeningStep = 0;
+                    engineTick();
                 } else {
-                    alert("Chưa đúng! Re-examine tonal differences or dictionary tags.");
+                    alert("Chưa đúng! Hãy xem kỹ hành động được yêu cầu.");
                 }
             };
             panel.appendChild(btn);
         });
     }
 
-    function executeFillLayout(lvl) {
+    // TASK 3: Loop holding multiple sequential listening tasks
+    function buildListeningScreen(lvl) {
+        let task = lvl.listeningTasks[listeningStep];
         let block = document.createElement('div');
         block.className = "story-text";
-        block.innerHTML = `<span class="badge badge-training">Step 2: Sentence Insertion Challenge</span><br><br>${lvl.fillPrompt}`;
+        block.innerHTML = `<span class="badge badge-training">BƯỚC 2: LUYỆN NGHE LIÊN TIẾP (${listeningStep + 1}/${lvl.listeningTasks.length})</span><br><br>${task.promptVi}`;
+        
+        let details = document.createElement('details');
+        details.innerHTML = `<summary>Dịch ngữ cảnh / View Task English Translation</summary><p style='margin: 8px 0 0 0; color:#3498db;'>${task.promptEn}</p>`;
+        block.appendChild(details);
         view.appendChild(block);
 
-        lvl.fillOptions.forEach((opt, idx) => {
+        // Native TTS Audio play trigger button
+        let audioBtn = document.createElement('button');
+        audioBtn.className = "audio-btn";
+        audioBtn.innerText = "🔊 BẤM ĐỂ NGHE CÂU NÓI (GIỌNG MIỀN NAM)";
+        audioBtn.onclick = () => triggerBrowserSpeech(task.audioText);
+        view.appendChild(audioBtn);
+
+        task.choicesVi.forEach((opt, idx) => {
             let btn = document.createElement('button');
             btn.innerText = `${idx + 1}. ${opt}`;
             btn.onclick = () => {
-                if (idx === lvl.fillCorrect) {
-                    alert("Xuất sắc! Prerequisites clear. Spawning world coordinates...");
-                    activePhase = "world_story";
-                    activeStoryNode = "start";
-                    runEngineTick();
+                if (idx === task.correct) {
+                    alert("Tuyệt vời! Nghe chính xác.");
+                    listeningStep++;
+                    if (listeningStep >= lvl.listeningTasks.length) {
+                        alert("Hoàn thành tất cả bài tập nghe! Tiến vào thế giới cốt truyện.");
+                        currentPhase = "story_world"; // transition state logic pointer alignment bypass
+                        currentPhase = "story_fiction";
+                    }
+                    engineTick();
                 } else {
-                    alert("Chưa đúng! Check word categories and semantic contextual flow variables.");
+                    alert("Sai rồi! Hãy bấm nghe lại để nắm bắt từ khóa cốt lõi.");
                 }
             };
             panel.appendChild(btn);
         });
     }
 
-    function executeStoryLayout(lvl) {
+    function buildStoryScreen(lvl) {
         let node = lvl.story[activeStoryNode];
         let block = document.createElement('div');
         block.className = "story-text";
-        block.innerHTML = `<span class="badge ${lvl.levelNum === 4 ? 'badge-bonus' : 'badge-world'}">${lvl.levelNum === 4 ? 'Bonus Checkpoint' : 'Step 3: Branching Narrative'}</span><br><br>${node.text}`;
+        block.innerHTML = `<span class="badge badge-world">BƯỚC 3: TƯƠNG TÁC THẾ GIỚI CỐT TRUYỆN</span><br><br>${node.textVi}`;
+        
+        let details = document.createElement('details');
+        details.innerHTML = `<summary>Dịch cốt truyện / View Narrative Translation</summary><p style='margin: 8px 0 0 0; color:#3498db;'>${node.textEn}</p>`;
+        block.appendChild(details);
         view.appendChild(block);
 
         node.choices.forEach(choice => {
             let btn = document.createElement('button');
-            btn.innerText = choice.text;
+            btn.innerText = choice.textVi;
             btn.onclick = () => {
                 if (choice.target === "next_level_advance") {
-                    activeIndex++;
-                    localStorage.setItem('saigon_quest_level', activeIndex);
-                    activePhase = "training_match";
-                    runEngineTick();
-                } else if (choice.target === "loop_reset" || choice.target === "campaign_restart") {
-                    activeIndex = 0;
-                    localStorage.setItem('saigon_quest_level', activeIndex);
-                    activePhase = "training_match";
-                    runEngineTick();
+                    currentLvlIdx++;
+                    localStorage.setItem('saigon_v3_level', currentLvlIdx);
+                    resetToLevelStart();
+                } else if (choice.target === "campaign_restart") {
+                    currentLvlIdx = 0;
+                    localStorage.setItem('saigon_v3_level', currentLvlIdx);
+                    resetToLevelStart();
                 } else {
                     activeStoryNode = choice.target;
-                    runEngineTick();
+                    engineTick();
                 }
             };
             panel.appendChild(btn);
         });
     }
 
-    // Fire state recovery tracking engine on load sequence completion
-    initProgressSaveState();
+    function triggerBrowserSpeech(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'vi-VN';
+            utterance.rate = 0.82; // Accessible training rhythm speed modifier
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert("TTS hardware layer not found.");
+        }
+    }
+
+    // Boot execution thread sequence allocation
+    initGameProgress();
 </script>
 </body>
 </html>
